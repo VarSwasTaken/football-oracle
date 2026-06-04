@@ -1,21 +1,21 @@
 const FACTORIALS = [
   1, // 0!
   1, // 1!
-  2, // 2!
-  6, // 3!
-  24, // 4!
-  120, // 5!
-  720, // 6!
-  5040, // 7!
-  40320, // 8!
-  362880, // 9!
-  3628800, // 10!
-  39916800, // 11!
-  479001600, // 12!
-  6227020800, // 13!
-  87178291200, // 14!
-  1307674368000, // 15!
-  20922789888000, // 16!
+  2,
+  6,
+  24,
+  120,
+  720,
+  5040,
+  40320,
+  362880,
+  3628800,
+  39916800,
+  479001600,
+  6227020800,
+  87178291200,
+  1307674368000,
+  20922789888000,
   355687428096000, // 17!
   6402373705728000, // 18!
 ];
@@ -25,8 +25,6 @@ const FACTORIALS = [
  * given the team is expected to score `expectedGoals` (lambda parameter).
  */
 export function calculatePoissonProbability(expectedGoals: number, actualGoals: number): number {
-  // Guard clause: if modifiers push the score above 18, we cap the probability at 0
-  // to prevent V8 engine precision loss with floating-point numbers.
   if (actualGoals > 18) return 0;
 
   const factorial = FACTORIALS[actualGoals];
@@ -72,4 +70,65 @@ export function simulateMatch(homeExpectedGoals: number, awayExpectedGoals: numb
     draw: Number((drawProb * 100).toFixed(2)),
     awayWin: Number((awayWinProb * 100).toFixed(2)),
   };
+}
+
+export interface ExactScore {
+  homeGoals: number;
+  awayGoals: number;
+  probability: number;
+}
+
+/**
+ * Calculates the top most likely exact scores for a match.
+ */
+export function getTopExactScores(homeLambda: number, awayLambda: number, limit: number = 3): ExactScore[] {
+  const scores: ExactScore[] = [];
+
+  for (let h = 0; h <= 5; h++) {
+    for (let a = 0; a <= 5; a++) {
+      const prob = calculatePoissonProbability(homeLambda, h) * calculatePoissonProbability(awayLambda, a);
+      scores.push({ homeGoals: h, awayGoals: a, probability: prob * 100 });
+    }
+  }
+
+  return scores
+    .sort((a, b) => {
+      const diff = b.probability - a.probability;
+      if (Math.abs(diff) < 0.00001) {
+        return b.homeGoals + b.awayGoals - (a.homeGoals + a.awayGoals);
+      }
+      return diff;
+    })
+    .slice(0, limit);
+}
+
+export interface OverUnderLine {
+  line: number;
+  under: number;
+  over: number;
+}
+
+/**
+ * Dynamically calculates Over/Under probabilities for lines 0.5 through 4.5
+ */
+export function getAllOverUnderLines(homeLambda: number, awayLambda: number): OverUnderLine[] {
+  const lines = [0.5, 1.5, 2.5, 3.5, 4.5];
+
+  const matrix: { totalGoals: number; prob: number }[] = [];
+  for (let h = 0; h <= 5; h++) {
+    for (let a = 0; a <= 5; a++) {
+      const prob = calculatePoissonProbability(homeLambda, h) * calculatePoissonProbability(awayLambda, a);
+      matrix.push({ totalGoals: h + a, prob });
+    }
+  }
+
+  return lines.map((line) => {
+    const underProb = matrix.filter((cell) => cell.totalGoals < line).reduce((sum, cell) => sum + cell.prob, 0);
+
+    return {
+      line,
+      under: Number((underProb * 100).toFixed(1)),
+      over: Number(((1 - underProb) * 100).toFixed(1)),
+    };
+  });
 }
