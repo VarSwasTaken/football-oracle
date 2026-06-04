@@ -4,13 +4,14 @@ import { useState, useMemo } from 'react';
 import teamsData from '@/lib/mocks/teams.json';
 import { simulateMatch } from '@/lib/poisson';
 import { useMatchStore } from '@/store/useMatchStore';
+import { MatchCharts } from './MatchCharts';
 
 // Constants defining the impact of modifiers (e.g., 0.20 = 20% impact)
 const MODIFIERS = {
   RED_CARD_ATK_PENALTY: 0.2,
   RED_CARD_DEF_PENALTY: 0.2,
-  INJURY_ATK_PENALTY: 0.15,
-  INJURY_DEF_PENALTY: 0.15,
+  INJURY_ATK_PENALTY: 0.1,
+  INJURY_DEF_PENALTY: 0.1,
 };
 
 export function MatchSimulator() {
@@ -23,11 +24,10 @@ export function MatchSimulator() {
   // Pull global state and actions from Zustand store
   const store = useMatchStore();
 
-  const odds = useMemo(() => {
+  // Recalculate everything in one clean pass
+  const matchCalculation = useMemo(() => {
     if (!homeTeam || !awayTeam) return null;
 
-    // 1. Calculate impact multipliers (1 means 100% / normal strength)
-    // Defense penalty INCREASES the multiplier because a higher defense value means conceding more goals.
     let homeAtkMult = 1;
     let homeDefMult = 1;
     if (store.homeRedCard) {
@@ -46,13 +46,14 @@ export function MatchSimulator() {
     if (store.awayKeyAttackerInjured) awayAtkMult -= MODIFIERS.INJURY_ATK_PENALTY;
     if (store.awayKeyDefenderInjured) awayDefMult += MODIFIERS.INJURY_DEF_PENALTY;
 
-    // 2. Apply multipliers to base stats
     const homeExpectedGoals = homeTeam.stats.attack_strength_home * homeAtkMult * (awayTeam.stats.defense_strength_away * awayDefMult) * homeTeam.stats.average_goals_scored;
 
     const awayExpectedGoals = awayTeam.stats.attack_strength_away * awayAtkMult * (homeTeam.stats.defense_strength_home * homeDefMult) * awayTeam.stats.average_goals_scored;
 
-    return simulateMatch(homeExpectedGoals, awayExpectedGoals);
-  }, [homeTeam, awayTeam, store]); // Added 'store' to dependencies so math recalculates on toggle
+    const odds = simulateMatch(homeExpectedGoals, awayExpectedGoals);
+
+    return { odds, homeExpectedGoals, awayExpectedGoals };
+  }, [homeTeam, awayTeam, store]);
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-slate-50 dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
@@ -122,27 +123,31 @@ export function MatchSimulator() {
         </div>
       </div>
 
-      {/* Probabilities Output */}
-      {odds && (
-        <div className="p-6 bg-white dark:bg-slate-950 rounded-lg border border-slate-100 dark:border-slate-800">
-          <h3 className="text-center font-semibold text-slate-500 mb-4 uppercase tracking-wider text-sm">Predicted Probabilities</h3>
+      {/* Probabilities Output & Charts */}
+      {matchCalculation && (
+        <div className="space-y-6">
+          <div className="p-6 bg-white dark:bg-slate-950 rounded-lg border border-slate-100 dark:border-slate-800">
+            <h3 className="text-center font-semibold text-slate-500 mb-4 uppercase tracking-wider text-sm">Predicted Probabilities</h3>
 
-          <div className="flex justify-between items-end gap-2 text-center">
-            <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg transition-colors">
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{odds.homeWin}%</div>
-              <div className="text-xs text-slate-500 mt-1">Home Win</div>
-            </div>
+            <div className="flex justify-between items-end gap-2 text-center">
+              <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{matchCalculation.odds.homeWin}%</div>
+                <div className="text-xs text-slate-500 mt-1">Home Win</div>
+              </div>
 
-            <div className="flex-1 bg-slate-100 dark:bg-slate-800/50 p-4 rounded-lg transition-colors">
-              <div className="text-2xl font-bold text-slate-600 dark:text-slate-300">{odds.draw}%</div>
-              <div className="text-xs text-slate-500 mt-1">Draw</div>
-            </div>
+              <div className="flex-1 bg-slate-100 dark:bg-slate-800/50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-slate-600 dark:text-slate-300">{matchCalculation.odds.draw}%</div>
+                <div className="text-xs text-slate-500 mt-1">Draw</div>
+              </div>
 
-            <div className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg transition-colors">
-              <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{odds.awayWin}%</div>
-              <div className="text-xs text-slate-500 mt-1">Away Win</div>
+              <div className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg">
+                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{matchCalculation.odds.awayWin}%</div>
+                <div className="text-xs text-slate-500 mt-1">Away Win</div>
+              </div>
             </div>
           </div>
+
+          <MatchCharts homeXG={matchCalculation.homeExpectedGoals} awayXG={matchCalculation.awayExpectedGoals} homeName={homeTeam?.name || 'Home'} awayName={awayTeam?.name || 'Away'} />
         </div>
       )}
     </div>
