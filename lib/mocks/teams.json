@@ -1,0 +1,41 @@
+[
+  {
+    "id": "t_001",
+    "name": "Arsenal",
+    "league": "Premier League",
+    "logoUrl": "/placeholders/arsenal.png",
+    "stats": {
+      "attack_strength_home": 1.45,
+      "defense_strength_home": 0.75,
+      "attack_strength_away": 1.2,
+      "defense_strength_away": 0.9,
+      "average_goals_scored": 2.1
+    }
+  },
+  {
+    "id": "t_002",
+    "name": "Manchester City",
+    "league": "Premier League",
+    "logoUrl": "/placeholders/mancity.png",
+    "stats": {
+      "attack_strength_home": 1.6,
+      "defense_strength_home": 0.8,
+      "attack_strength_away": 1.4,
+      "defense_strength_away": 0.85,
+      "average_goals_scored": 2.4
+    }
+  },
+  {
+    "id": "t_003",
+    "name": "Legia Warszawa",
+    "league": "Ekstraklasa",
+    "logoUrl": "/placeholders/legia.png",
+    "stats": {
+      "attack_strength_home": 1.3,
+      "defense_strength_home": 0.85,
+      "attack_strength_away": 1.1,
+      "defense_strength_away": 1.05,
+      "average_goals_scored": 1.6
+    }
+  }
+]

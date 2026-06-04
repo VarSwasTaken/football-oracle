@@ -1,0 +1,11 @@
+{
+  "match_id": "m_100",
+  "home_team_id": "t_001",
+  "away_team_id": "t_002",
+  "current_minute": 75,
+  "events": [
+    { "minute": 15, "type": "GOAL", "team_id": "t_001", "description": "Gol dla Arsenalu!" },
+    { "minute": 42, "type": "YELLOW_CARD", "team_id": "t_002", "description": "Faul taktyczny." },
+    { "minute": 60, "type": "RED_CARD", "team_id": "t_001", "description": "Ostra gra, Arsenal w dziesiątkę." }
+  ]
+}
