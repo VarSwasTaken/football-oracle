@@ -5,6 +5,7 @@ import teamsData from '@/lib/mocks/teams.json';
 import { simulateMatch } from '@/lib/poisson';
 import { useMatchStore } from '@/store/useMatchStore';
 import { MatchCharts } from './MatchCharts';
+import { BettingInsights } from './BettingInsights';
 
 // Constants defining the impact of modifiers (e.g., 0.20 = 20% impact)
 const MODIFIERS = {
@@ -148,6 +149,8 @@ export function MatchSimulator() {
           </div>
 
           <MatchCharts homeXG={matchCalculation.homeExpectedGoals} awayXG={matchCalculation.awayExpectedGoals} homeName={homeTeam?.name || 'Home'} awayName={awayTeam?.name || 'Away'} />
+
+          <BettingInsights homeLambda={matchCalculation.homeExpectedGoals} awayLambda={matchCalculation.awayExpectedGoals} homeName={homeTeam?.name || 'Home'} awayName={awayTeam?.name || 'Away'} />
         </div>
       )}
     </div>
