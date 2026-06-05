@@ -25,7 +25,7 @@ export function BettingInsights({ exactScores, overUnder }: BettingInsightsProps
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       {/* Exact Scores Card */}
-      <Card className="border-0 bg-card/50 shadow-xl shadow-black/5 backdrop-blur-sm">
+      <Card className="border-0 bg-card/50 shadow-xl shadow-black/5 ">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-3 text-base font-semibold tracking-tight">
@@ -71,7 +71,7 @@ export function BettingInsights({ exactScores, overUnder }: BettingInsightsProps
       </Card>
 
       {/* Over/Under Card */}
-      <Card className="border-0 bg-card/50 shadow-xl shadow-black/5 backdrop-blur-sm">
+      <Card className="border-0 bg-card/50 shadow-xl shadow-black/5 ">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-3 text-base font-semibold tracking-tight">

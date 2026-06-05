@@ -73,24 +73,24 @@ export default function MatchSimulatorPage() {
             selectedTeamId={homeTeamId}
             opponentTeamId={awayTeamId}
             modifiers={{
-              redCard: store.homeRedCard,
-              keyAttackerInjured: store.homeKeyAttackerInjured,
-              keyDefenderInjured: store.homeKeyDefenderInjured,
+              RedCard: store.homeRedCard,
+              KeyAttackerInjured: store.homeKeyAttackerInjured,
+              KeyDefenderInjured: store.homeKeyDefenderInjured,
             }}
             onTeamChange={setHomeTeamId}
-            onModifierChange={(_, key) => store.toggleModifier('home', key as any)}
+            onModifierChange={(mod) => store.toggleModifier('home', mod)}
           />
           <TeamSelectionCard
             type="away"
             selectedTeamId={awayTeamId}
             opponentTeamId={homeTeamId}
             modifiers={{
-              redCard: store.awayRedCard,
-              keyAttackerInjured: store.awayKeyAttackerInjured,
-              keyDefenderInjured: store.awayKeyDefenderInjured,
+              RedCard: store.awayRedCard,
+              KeyAttackerInjured: store.awayKeyAttackerInjured,
+              KeyDefenderInjured: store.awayKeyDefenderInjured,
             }}
             onTeamChange={setAwayTeamId}
-            onModifierChange={(_, key) => store.toggleModifier('away', key as any)}
+            onModifierChange={(mod) => store.toggleModifier('away', mod)}
           />
         </div>
       </section>

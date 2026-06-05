@@ -15,7 +15,7 @@ export function PredictedProbabilities({ homeWin, draw, awayWin, homeTeam, awayT
   const favorite = homeWin > awayWin && homeWin > draw ? 'home' : awayWin > homeWin && awayWin > draw ? 'away' : 'draw';
 
   return (
-    <Card className="border-0 bg-card/50 shadow-xl shadow-black/5 backdrop-blur-sm">
+    <Card className="border-0 bg-card/50 shadow-xl shadow-black/5 ">
       <CardContent className="p-6">
         {/* Combined Progress Bar */}
         <div className="mb-6">

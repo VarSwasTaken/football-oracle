@@ -7,11 +7,12 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import teamsData from '@/lib/mocks/teams.json';
 
-// We'll define a type for modifiers to keep it clean
+export type ModifierType = 'RedCard' | 'KeyAttackerInjured' | 'KeyDefenderInjured';
+
 export interface ModifiersState {
-  redCard: boolean;
-  keyAttackerInjured: boolean;
-  keyDefenderInjured: boolean;
+  RedCard: boolean;
+  KeyAttackerInjured: boolean;
+  KeyDefenderInjured: boolean;
 }
 
 interface TeamSelectionCardProps {
@@ -20,18 +21,15 @@ interface TeamSelectionCardProps {
   opponentTeamId: string;
   modifiers: ModifiersState;
   onTeamChange: (teamId: string) => void;
-  onModifierChange: (key: keyof ModifiersState, value: boolean) => void;
+  onModifierChange: (modifier: ModifierType) => void;
 }
 
 export function TeamSelectionCard({ type, selectedTeamId, opponentTeamId, modifiers, onTeamChange, onModifierChange }: TeamSelectionCardProps) {
   const isHome = type === 'home';
-
-  // Find the selected team's full object to display the name
   const selectedTeam = teamsData.find((t) => t.id === selectedTeamId);
 
   return (
-    <Card className={`relative overflow-hidden border-0 bg-card/50 shadow-xl shadow-black/5 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:shadow-black/10 ${isHome ? 'ring-1 ring-blue-500/20' : 'ring-1 ring-emerald-500/20'}`}>
-      {/* Top accent bar */}
+    <Card className={`relative overflow-hidden border-0 bg-card/50 shadow-xl shadow-black/5  transition-all duration-300 hover:shadow-2xl hover:shadow-black/10 ${isHome ? 'ring-1 ring-blue-500/20' : 'ring-1 ring-emerald-500/20'}`}>
       <div className={`absolute inset-x-0 top-0 h-1 ${isHome ? 'bg-blue-500' : 'bg-emerald-500'}`} />
 
       <CardHeader className="pb-4 pt-5">
@@ -65,7 +63,7 @@ export function TeamSelectionCard({ type, selectedTeamId, opponentTeamId, modifi
             <SelectTrigger className="h-12 border-border/50 bg-background/50 text-base font-medium transition-colors hover:bg-background focus:ring-2 focus:ring-primary/20">
               <SelectValue placeholder="Select team">{selectedTeam ? selectedTeam.name : 'Select team'}</SelectValue>
             </SelectTrigger>
-            <SelectContent className="border-border/50 bg-popover/95 backdrop-blur-xl">
+            <SelectContent className="border-border/50 bg-popover/95 ">
               {teamsData.map((team) => (
                 <SelectItem key={team.id} value={team.id} disabled={team.id === opponentTeamId} className="font-medium focus:bg-primary/10">
                   {team.name} <span className="text-muted-foreground text-xs ml-2">({team.league})</span>
@@ -77,7 +75,6 @@ export function TeamSelectionCard({ type, selectedTeamId, opponentTeamId, modifi
 
         <div className="space-y-3">
           <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Match Conditions</Label>
-
           <div className="space-y-2">
             <ModifierSwitch
               id={`${type}-red-card`}
@@ -87,8 +84,8 @@ export function TeamSelectionCard({ type, selectedTeamId, opponentTeamId, modifi
                   <rect width="14" height="20" x="5" y="2" rx="2" />
                 </svg>
               }
-              checked={modifiers.redCard}
-              onCheckedChange={(checked) => onModifierChange('redCard', checked)}
+              checked={modifiers.RedCard}
+              onCheckedChange={() => onModifierChange('RedCard')}
             />
             <ModifierSwitch
               id={`${type}-attacker-out`}
@@ -102,8 +99,8 @@ export function TeamSelectionCard({ type, selectedTeamId, opponentTeamId, modifi
                   <path d="m9 16 2 2 4-4" />
                 </svg>
               }
-              checked={modifiers.keyAttackerInjured}
-              onCheckedChange={(checked) => onModifierChange('keyAttackerInjured', checked)}
+              checked={modifiers.KeyAttackerInjured}
+              onCheckedChange={() => onModifierChange('KeyAttackerInjured')}
             />
             <ModifierSwitch
               id={`${type}-defender-out`}
@@ -113,8 +110,8 @@ export function TeamSelectionCard({ type, selectedTeamId, opponentTeamId, modifi
                   <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
                 </svg>
               }
-              checked={modifiers.keyDefenderInjured}
-              onCheckedChange={(checked) => onModifierChange('keyDefenderInjured', checked)}
+              checked={modifiers.KeyDefenderInjured}
+              onCheckedChange={() => onModifierChange('KeyDefenderInjured')}
             />
           </div>
         </div>
@@ -128,7 +125,7 @@ interface ModifierSwitchProps {
   label: string;
   icon: React.ReactNode;
   checked: boolean;
-  onCheckedChange: (checked: boolean) => void;
+  onCheckedChange: () => void;
 }
 
 function ModifierSwitch({ id, label, icon, checked, onCheckedChange }: ModifierSwitchProps) {

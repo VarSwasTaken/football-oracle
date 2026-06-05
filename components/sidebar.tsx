@@ -74,7 +74,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 hidden w-16 flex-col border-r border-border/50 bg-card/80 backdrop-blur-xl sm:flex">
+    <aside className="fixed inset-y-0 left-0 z-50 hidden w-16 flex-col border-r border-border/50 bg-card/80  sm:flex">
       {/* Logo */}
       <div className="flex h-16 items-center justify-center border-b border-border/50">
         <div className="flex size-10 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/25">
@@ -86,7 +86,7 @@ export function DashboardSidebar() {
         </div>
       </div>
 
-{/* Navigation */}
+      {/* Navigation */}
       <nav className="flex flex-1 flex-col gap-1 p-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -94,15 +94,7 @@ export function DashboardSidebar() {
             <Tooltip key={item.name}>
               {/* TUTAJ JEST POPRAWKA: asChild zamiast render={...} */}
               <TooltipTrigger asChild>
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "group relative flex size-12 items-center justify-center rounded-xl transition-all duration-200",
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
+                <Link href={item.href} className={cn('group relative flex size-12 items-center justify-center rounded-xl transition-all duration-200', isActive ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : 'text-muted-foreground hover:bg-muted hover:text-foreground')}>
                   {item.icon}
                   {item.badge && (
                     <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[8px] font-bold text-white">

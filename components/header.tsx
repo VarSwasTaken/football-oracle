@@ -5,7 +5,7 @@ import { UserProfileDropdown } from '@/components/user-profile-dropdown';
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border/50 bg-background/80 px-6 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border/50 bg-background/80 px-6 ">
       <div className="flex items-center gap-3">
         {/* Mobile menu button */}
         <button className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:hidden">
