@@ -4,8 +4,8 @@ import { useState, useMemo } from 'react';
 import teamsData from '@/lib/mocks/teams.json';
 import { simulateMatch } from '@/lib/poisson';
 import { useMatchStore } from '@/store/useMatchStore';
-import { MatchCharts } from './MatchCharts';
-import { BettingInsights } from './BettingInsights';
+import { MatchCharts } from './match-charts';
+import { BettingInsights } from './betting-insights';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
