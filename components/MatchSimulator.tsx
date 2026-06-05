@@ -7,7 +7,11 @@ import { useMatchStore } from '@/store/useMatchStore';
 import { MatchCharts } from './MatchCharts';
 import { BettingInsights } from './BettingInsights';
 
-// Constants defining the impact of modifiers (e.g., 0.20 = 20% impact)
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+
 const MODIFIERS = {
   RED_CARD_ATK_PENALTY: 0.2,
   RED_CARD_DEF_PENALTY: 0.2,
@@ -22,10 +26,8 @@ export function MatchSimulator() {
   const homeTeam = useMemo(() => teamsData.find((t) => t.id === homeTeamId), [homeTeamId]);
   const awayTeam = useMemo(() => teamsData.find((t) => t.id === awayTeamId), [awayTeamId]);
 
-  // Pull global state and actions from Zustand store
   const store = useMatchStore();
 
-  // Recalculate everything in one clean pass
   const matchCalculation = useMemo(() => {
     if (!homeTeam || !awayTeam) return null;
 
@@ -48,105 +50,137 @@ export function MatchSimulator() {
     if (store.awayKeyDefenderInjured) awayDefMult += MODIFIERS.INJURY_DEF_PENALTY;
 
     const homeExpectedGoals = homeTeam.stats.attack_strength_home * homeAtkMult * (awayTeam.stats.defense_strength_away * awayDefMult) * homeTeam.stats.average_goals_scored;
-
     const awayExpectedGoals = awayTeam.stats.attack_strength_away * awayAtkMult * (homeTeam.stats.defense_strength_home * homeDefMult) * awayTeam.stats.average_goals_scored;
-
     const odds = simulateMatch(homeExpectedGoals, awayExpectedGoals);
 
     return { odds, homeExpectedGoals, awayExpectedGoals };
   }, [homeTeam, awayTeam, store]);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-slate-50 dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-      <h2 className="text-2xl font-bold mb-6 text-center">Match Simulator</h2>
+    <div className="max-w-4xl mx-auto space-y-8">
+      {/* Team Selection & Modifiers Section */}
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 items-start">
+        {/* Home Team Card */}
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Home Team</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <Select value={homeTeamId} onValueChange={setHomeTeamId}>
+              <SelectTrigger className="w-full bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                <SelectValue placeholder="Select team" />
+              </SelectTrigger>
+              <SelectContent>
+                {teamsData.map((team) => (
+                  <SelectItem key={`home-${team.id}`} value={team.id} disabled={team.id === awayTeamId}>
+                    {team.name} ({team.league})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-      <div className="flex flex-col md:flex-row gap-8 justify-between items-start mb-8">
-        {/* Home Team Section */}
-        <div className="flex-1 w-full space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2 text-slate-500">Home Team</label>
-            <select value={homeTeamId} onChange={(e) => setHomeTeamId(e.target.value)} className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800">
-              {teamsData.map((team) => (
-                <option key={`home-${team.id}`} value={team.id} disabled={team.id === awayTeamId}>
-                  {team.name} ({team.league})
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800/50">
+              <h4 className="text-xs font-medium text-slate-400 mb-4">MATCH MODIFIERS</h4>
 
-          <div className="space-y-2 p-4 bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800">
-            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Modifiers</h4>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" checked={store.homeRedCard} onChange={() => store.toggleModifier('home', 'RedCard')} className="rounded border-slate-300" />
-              Red Card (-20% Atk/Def)
-            </label>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" checked={store.homeKeyAttackerInjured} onChange={() => store.toggleModifier('home', 'KeyAttackerInjured')} className="rounded border-slate-300" />
-              Key Attacker Injured
-            </label>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" checked={store.homeKeyDefenderInjured} onChange={() => store.toggleModifier('home', 'KeyDefenderInjured')} className="rounded border-slate-300" />
-              Key Defender Injured
-            </label>
-          </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="home-red-card" className="cursor-pointer">
+                  Red Card (-20% Stats)
+                </Label>
+                <Switch id="home-red-card" checked={store.homeRedCard} onCheckedChange={() => store.toggleModifier('home', 'RedCard')} />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="home-inj-atk" className="cursor-pointer">
+                  Key Attacker Out
+                </Label>
+                <Switch id="home-inj-atk" checked={store.homeKeyAttackerInjured} onCheckedChange={() => store.toggleModifier('home', 'KeyAttackerInjured')} />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="home-inj-def" className="cursor-pointer">
+                  Key Defender Out
+                </Label>
+                <Switch id="home-inj-def" checked={store.homeKeyDefenderInjured} onCheckedChange={() => store.toggleModifier('home', 'KeyDefenderInjured')} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* VS Badge */}
+        <div className="hidden md:flex h-full items-center justify-center pt-8">
+          <div className="bg-slate-100 dark:bg-slate-800 text-slate-400 font-mono font-bold text-xl p-4 rounded-full">VS</div>
         </div>
 
-        <div className="text-xl font-black text-slate-400 font-mono mt-8">VS</div>
+        {/* Away Team Card */}
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-sm font-semibold text-slate-500 uppercase tracking-wider text-right">Away Team</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <Select value={awayTeamId} onValueChange={setAwayTeamId}>
+              <SelectTrigger className="w-full bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                <SelectValue placeholder="Select team" />
+              </SelectTrigger>
+              <SelectContent>
+                {teamsData.map((team) => (
+                  <SelectItem key={`away-${team.id}`} value={team.id} disabled={team.id === homeTeamId}>
+                    {team.name} ({team.league})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-        {/* Away Team Section */}
-        <div className="flex-1 w-full space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2 text-slate-500">Away Team</label>
-            <select value={awayTeamId} onChange={(e) => setAwayTeamId(e.target.value)} className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800">
-              {teamsData.map((team) => (
-                <option key={`away-${team.id}`} value={team.id} disabled={team.id === homeTeamId}>
-                  {team.name} ({team.league})
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800/50">
+              <h4 className="text-xs font-medium text-slate-400 mb-4">MATCH MODIFIERS</h4>
 
-          <div className="space-y-2 p-4 bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800">
-            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Modifiers</h4>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" checked={store.awayRedCard} onChange={() => store.toggleModifier('away', 'RedCard')} className="rounded border-slate-300" />
-              Red Card (-20% Atk/Def)
-            </label>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" checked={store.awayKeyAttackerInjured} onChange={() => store.toggleModifier('away', 'KeyAttackerInjured')} className="rounded border-slate-300" />
-              Key Attacker Injured
-            </label>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" checked={store.awayKeyDefenderInjured} onChange={() => store.toggleModifier('away', 'KeyDefenderInjured')} className="rounded border-slate-300" />
-              Key Defender Injured
-            </label>
-          </div>
-        </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="away-red-card" className="cursor-pointer">
+                  Red Card (-20% Stats)
+                </Label>
+                <Switch id="away-red-card" checked={store.awayRedCard} onCheckedChange={() => store.toggleModifier('away', 'RedCard')} />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="away-inj-atk" className="cursor-pointer">
+                  Key Attacker Out
+                </Label>
+                <Switch id="away-inj-atk" checked={store.awayKeyAttackerInjured} onCheckedChange={() => store.toggleModifier('away', 'KeyAttackerInjured')} />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="away-inj-def" className="cursor-pointer">
+                  Key Defender Out
+                </Label>
+                <Switch id="away-inj-def" checked={store.awayKeyDefenderInjured} onCheckedChange={() => store.toggleModifier('away', 'KeyDefenderInjured')} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Probabilities Output & Charts */}
       {matchCalculation && (
         <div className="space-y-6">
-          <div className="p-6 bg-white dark:bg-slate-950 rounded-lg border border-slate-100 dark:border-slate-800">
-            <h3 className="text-center font-semibold text-slate-500 mb-4 uppercase tracking-wider text-sm">Predicted Probabilities</h3>
+          <Card className="border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-950">
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-end gap-2 text-center">
+                <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{matchCalculation.odds.homeWin}%</div>
+                  <div className="text-xs text-slate-500 mt-1">Home Win</div>
+                </div>
 
-            <div className="flex justify-between items-end gap-2 text-center">
-              <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{matchCalculation.odds.homeWin}%</div>
-                <div className="text-xs text-slate-500 mt-1">Home Win</div>
-              </div>
+                <div className="flex-1 bg-slate-100 dark:bg-slate-800/50 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-slate-600 dark:text-slate-300">{matchCalculation.odds.draw}%</div>
+                  <div className="text-xs text-slate-500 mt-1">Draw</div>
+                </div>
 
-              <div className="flex-1 bg-slate-100 dark:bg-slate-800/50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-slate-600 dark:text-slate-300">{matchCalculation.odds.draw}%</div>
-                <div className="text-xs text-slate-500 mt-1">Draw</div>
+                <div className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg">
+                  <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{matchCalculation.odds.awayWin}%</div>
+                  <div className="text-xs text-slate-500 mt-1">Away Win</div>
+                </div>
               </div>
-
-              <div className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg">
-                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{matchCalculation.odds.awayWin}%</div>
-                <div className="text-xs text-slate-500 mt-1">Away Win</div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           <MatchCharts homeXG={matchCalculation.homeExpectedGoals} awayXG={matchCalculation.awayExpectedGoals} homeName={homeTeam?.name || 'Home'} awayName={awayTeam?.name || 'Away'} />
 
